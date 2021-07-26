@@ -554,6 +554,30 @@ type TcU32Sel struct {
 	Keys     []TcU32Key
 }
 
+type TcU32Mark struct {
+	Val    uint32
+	Mask   uint32
+	Success uint32
+}
+
+func (msg *TcU32Mark) Len() int {
+	ret := unsafe.Sizeof(msg)
+	return int(ret)
+}
+
+func DeserializeTcU32Mark(b []byte) *TcU32Mark {
+	x := &TcU32Mark{}
+	copy((*(*[SizeofTcU32Sel]byte)(unsafe.Pointer(x)))[:], b)
+	return x
+}
+
+func (x *TcU32Mark) Serialize() []byte {
+	// This can't just unsafe.cast because it must iterate through keys.
+	buf := make([]byte, x.Len())
+	copy(buf, *(*[]byte)(unsafe.Pointer(x)))
+	return buf
+}
+
 func (msg *TcU32Sel) Len() int {
 	return SizeofTcU32Sel + int(msg.Nkeys)*SizeofTcU32Key
 }

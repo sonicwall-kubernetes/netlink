@@ -25,6 +25,8 @@ const (
 // canonical nl.TcU32Sel with the appropriate endianness.
 type TcU32Sel = nl.TcU32Sel
 
+type TcU32Mark = nl.TcU32Mark
+
 // TcU32Key contained of Sel in the U32 filters. This is the type alias and the
 // frontend representation of nl.TcU32Key. It is serialized into chanonical
 // nl.TcU32Sel with the appropriate endianness.
@@ -39,6 +41,7 @@ type U32 struct {
 	Link       uint32
 	RedirIndex int
 	Sel        *TcU32Sel
+	Mark       *TcU32Mark
 	Actions    []Action
 }
 
@@ -213,6 +216,11 @@ func (h *Handle) filterModify(filter Filter, flags int) error {
 		}
 		sel.Nkeys = uint8(len(sel.Keys))
 		options.AddRtAttr(nl.TCA_U32_SEL, sel.Serialize())
+
+		if filter.Mark != nil {
+			options.AddRtAttr(nl.TCA_U32_MARK, filter.Mark.Serialize())
+		}
+
 		if filter.ClassId != 0 {
 			options.AddRtAttr(nl.TCA_U32_CLASSID, nl.Uint32Attr(filter.ClassId))
 		}
@@ -648,6 +656,10 @@ func parseU32Data(filter Filter, data []syscall.NetlinkRouteAttr) (bool, error) 
 					u32.Sel.Keys[i].Val = native.Uint32(htonl(key.Val))
 				}
 			}
+		case nl.TCA_U32_MARK:
+			mark := nl.DeserializeTcU32Mark(datum.Value)
+			u32.Mark = mark
+
 		case nl.TCA_U32_ACT:
 			tables, err := nl.ParseRouteAttr(datum.Value)
 			if err != nil {
