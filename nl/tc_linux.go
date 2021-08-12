@@ -88,6 +88,7 @@ const (
 	SizeofTcHtbGlob      = 0x14
 	SizeofTcU32Key       = 0x10
 	SizeofTcU32Sel       = 0x10 // without keys
+	SizeofTcU32Mark      = 0xc
 	SizeofTcGen          = 0x14
 	SizeofTcConnmark     = SizeofTcGen + 0x04
 	SizeofTcMirred       = SizeofTcGen + 0x08
@@ -554,30 +555,6 @@ type TcU32Sel struct {
 	Keys     []TcU32Key
 }
 
-type TcU32Mark struct {
-	Val    uint32
-	Mask   uint32
-	Success uint32
-}
-
-func (msg *TcU32Mark) Len() int {
-	ret := unsafe.Sizeof(msg)
-	return int(ret)
-}
-
-func DeserializeTcU32Mark(b []byte) *TcU32Mark {
-	x := &TcU32Mark{}
-	copy((*(*[SizeofTcU32Sel]byte)(unsafe.Pointer(x)))[:], b)
-	return x
-}
-
-func (x *TcU32Mark) Serialize() []byte {
-	// This can't just unsafe.cast because it must iterate through keys.
-	buf := make([]byte, x.Len())
-	copy(buf, *(*[]byte)(unsafe.Pointer(x)))
-	return buf
-}
-
 func (msg *TcU32Sel) Len() int {
 	return SizeofTcU32Sel + int(msg.Nkeys)*SizeofTcU32Key
 }
@@ -627,6 +604,26 @@ func (x *TcGen) Serialize() []byte {
 	return (*(*[SizeofTcGen]byte)(unsafe.Pointer(x)))[:]
 }
 
+// TcU32Mark
+type TcU32Mark struct {
+	Val    uint32
+	Mask   uint32
+	Success uint32
+}
+
+func (msg *TcU32Mark) Len() int {
+	return SizeofTcU32Mark
+}
+
+func DeserializeTcU32Mark(b []byte) *TcU32Mark {
+	x := &TcU32Mark{}
+	copy ((*(*[SizeofTcU32Mark]byte)(unsafe.Pointer(x)))[:], b)
+	return x
+}
+
+func (x *TcU32Mark) Serialize() []byte {
+	return  (*(*[SizeofTcU32Mark]byte)(unsafe.Pointer(x)))[:]
+}
 // #define tc_gen \
 //   __u32                 index; \
 //   __u32                 capab; \

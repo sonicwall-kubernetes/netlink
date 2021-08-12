@@ -217,8 +217,9 @@ func (h *Handle) filterModify(filter Filter, flags int) error {
 		sel.Nkeys = uint8(len(sel.Keys))
 		options.AddRtAttr(nl.TCA_U32_SEL, sel.Serialize())
 
-		if filter.Mark != nil {
-			options.AddRtAttr(nl.TCA_U32_MARK, filter.Mark.Serialize())
+		mark := filter.Mark
+		if mark != nil {
+			options.AddRtAttr(nl.TCA_U32_MARK, mark.Serialize())
 		}
 
 		if filter.ClassId != 0 {
