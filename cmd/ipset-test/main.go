@@ -10,7 +10,7 @@ import (
 	"os"
 	"sort"
 
-	"github.com/vishvananda/netlink"
+	"github.com/sonicwall-kubernetes/netlink"
 )
 
 type command struct {

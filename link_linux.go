@@ -12,7 +12,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/vishvananda/netlink/nl"
+	"github.com/sonicwall-kubernetes/netlink/nl"
 	"github.com/vishvananda/netns"
 	"golang.org/x/sys/unix"
 )
